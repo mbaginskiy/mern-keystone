@@ -1,0 +1,9 @@
+{
+  "presets": ["airbnb"],
+  "plugins": ["react-hot-loader/babel"],
+  "env": {
+    "production": {
+      "presets": ["airbnb", "react-optimize"]
+    }
+  }
+}
