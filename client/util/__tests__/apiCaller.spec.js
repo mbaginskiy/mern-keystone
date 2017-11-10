@@ -1,34 +1,33 @@
-import test from 'ava';
-import callApi, { API_URL } from '../apiCaller';
 import nock from 'nock';
+import callApi, { API_URL } from '../apiCaller';
 
-test('method defaults to GET', t => {
-  const reply = { foo: 'bar' };
+test('method defaults to GET', () => {
+  const reply = { test: 'test' };
   nock(API_URL)
-    .get('/foo')
+    .get('/test')
     .reply(200, reply);
-  return callApi('foo').then(response => {
-    t.deepEqual(response, reply);
+  return callApi('test').then((response) => {
+    expect(response).toEqual(reply);
   });
 });
 
-test('sends the body', t => {
-  const body = { id: 5 };
-  const reply = { foo: 'bar' };
+test('sends the body', () => {
+  const body = { id: 'test' };
+  const reply = { test: 'test' };
   nock(API_URL)
-    .post('/foo', body)
+    .post('/test', body)
     .reply(200, reply);
-  return callApi('foo', 'post', body).then(response => {
-    t.deepEqual(response, reply);
+  return callApi('test', 'post', body).then((response) => {
+    expect(response).toEqual(reply);
   });
 });
 
-test('returns the error', t => {
-  const reply = { message: 'Errrrrrrrrr' };
+test('returns the error', () => {
+  const reply = { message: 'Error' };
   nock(API_URL)
     .get('/send_error')
     .reply(500, reply);
-  return callApi('send_error').then(error => {
-    t.deepEqual(error, reply);
+  return callApi('send_error').then((error) => {
+    expect(error).toEqual(reply);
   });
 });

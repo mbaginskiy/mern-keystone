@@ -1,81 +1,110 @@
-import test from 'ava';
-import { reducerTest } from 'redux-ava';
 import postReducer, { getPost, getPosts } from '../PostReducer';
-import { addPost, deletePost, addPosts } from '../PostActions';
+import { ADD_POST, ADD_POSTS, DELETE_POST } from '../PostActions';
 
-test('action for ADD_POST is working', reducerTest(
-  postReducer,
-  { data: ['foo'] },
-  addPost({
-    name: 'prank',
-    title: 'first post',
-    content: 'Hello world!',
-    _id: null,
-    cuid: null,
-    slug: 'first-post',
-  }),
-  { data: [{
-    name: 'prank',
-    title: 'first post',
-    content: 'Hello world!',
-    _id: null,
-    cuid: null,
-    slug: 'first-post',
-  }, 'foo'] },
-));
+test('PostReducer should return the initial state', () => {
+  expect(postReducer({ data: [] }, {})).toEqual({ data: [] });
+});
 
-test('action for DELETE_POST is working', reducerTest(
-  postReducer,
-  { data: [{
-    name: 'prank',
-    title: 'first post',
-    content: 'Hello world!',
-    cuid: 'abc',
-    _id: 1,
-    slug: 'first-post',
-  }] },
-  deletePost('abc'),
-  { data: [] },
-));
-
-test('action for ADD_POSTS is working', reducerTest(
-  postReducer,
-  { data: [] },
-  addPosts([
+test('PostReducer action for ADD_POST is working', () => {
+  expect(
+    postReducer(
+      { data: [] },
+      {
+        type: ADD_POST,
+        post: {
+          id: 'test-id',
+          title: 'Test Title',
+        },
+      },
+    ),
+  ).toEqual({ data: [
     {
-      name: 'prank',
-      title: 'first post',
-      content: 'Hello world!',
-      _id: null,
-      cuid: null,
-      slug: 'first-post',
+      id: 'test-id',
+      title: 'Test Title',
     },
-  ]),
-  { data: [{
-    name: 'prank',
-    title: 'first post',
-    content: 'Hello world!',
-    _id: null,
-    cuid: null,
-    slug: 'first-post',
-  }] },
-));
+  ] });
+});
 
-test('getPosts selector', t => {
-  t.deepEqual(
+test('PostReducer action for DELETE_POST is working', () => {
+  expect(
+    postReducer(
+      { data: [
+        {
+          id: 'test-id',
+          title: 'Test Title',
+        },
+      ] },
+      {
+        type: DELETE_POST,
+        id: 'test-id',
+      },
+    ),
+  ).toEqual({ data: [] });
+});
+
+test('PostReducer action for ADD_POSTS is working', () => {
+  expect(
+    postReducer(
+      { data: [] },
+      {
+        type: ADD_POSTS,
+        posts: [
+          {
+            id: 'test-id-1',
+            title: 'Test Title 1',
+          },
+          {
+            id: 'test-id-2',
+            title: 'Test Title 2',
+          },
+        ],
+      },
+    ),
+  ).toEqual({ data: [
+    {
+      id: 'test-id-1',
+      title: 'Test Title 1',
+    },
+    {
+      id: 'test-id-2',
+      title: 'Test Title 2',
+    },
+  ] });
+});
+
+test('PostReducer getPosts selector is working', () => {
+  expect(
     getPosts({
-      posts: { data: ['foo'] },
+      posts: { data: [
+        {
+          id: 'test-id',
+          title: 'Test Title',
+        },
+      ] },
     }),
-    ['foo']
-  );
+  ).toEqual([
+    {
+      id: 'test-id',
+      title: 'Test Title',
+    },
+  ]);
 });
 
-test('getPost selector', t => {
-  t.deepEqual(
+test('PostReducer getPost selector is working', () => {
+  expect(
     getPost({
-      posts: { data: [{ cuid: '123' }] },
-    }, '123'),
-    { cuid: '123' }
-  );
+      posts: { data: [
+        {
+          id: 'test-id',
+          title: 'Test Title',
+          slug: 'test-slug',
+        },
+      ] },
+    },
+    'test-slug'),
+  ).toEqual({
+    id: 'test-id',
+    title: 'Test Title',
+    slug: 'test-slug',
+  });
 });
-

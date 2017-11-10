@@ -1,13 +1,11 @@
 import React from 'react';
-import test from 'ava';
 import { shallow } from 'enzyme';
-import { Footer } from '../../components/Footer/Footer';
+import 'jest-styled-components';
+import Footer from '../../components/Footer';
 
-test('renders the footer properly', t => {
-  const wrapper = shallow(
-    <Footer />
-  );
-
-  t.is(wrapper.find('p').length, 2);
-  t.is(wrapper.find('p').first().text(), '© 2016 · Hashnode · LinearBytes Inc.');
+test('renders the footer properly', () => {
+  const wrapper = shallow(<Footer />);
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Footer__Text').length).toBe(2);
+  expect(wrapper.find('Footer__Text').first().props().children).toBe('© 2016 · Hashnode · LinearBytes Inc.');
 });

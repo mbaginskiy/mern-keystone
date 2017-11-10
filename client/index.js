@@ -4,18 +4,22 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
+import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
-import { configureStore } from './store';
+import configureStore from './store';
 
 // Initialize store
+// eslint-disable-next-line no-underscore-dangle
 const store = configureStore(window.__INITIAL_STATE__);
 const mountApp = document.getElementById('root');
 
 render(
   <AppContainer>
-    <App store={store} />
+    <Router>
+      <App store={store} />
+    </Router>
   </AppContainer>,
-  mountApp
+  mountApp,
 );
 
 // For hot reloading of react components
@@ -26,9 +30,11 @@ if (module.hot) {
     const NextApp = require('./App').default; // eslint-disable-line global-require
     render(
       <AppContainer>
-        <NextApp store={store} />
+        <Router>
+          <NextApp store={store} />
+        </Router>
       </AppContainer>,
-      mountApp
+      mountApp,
     );
   });
 }

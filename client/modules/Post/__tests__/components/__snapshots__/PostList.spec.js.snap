@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders the list 1`] = `
+<div
+  className="listView"
+>
+  <Post
+    key="1"
+    onDelete={[Function]}
+    post={
+      Object {
+        "author": "Admin User",
+        "content": Object {
+          "brief": "test",
+          "extended": "test",
+        },
+        "id": "1",
+        "slug": "test-title-1",
+        "title": "Test Title 1",
+      }
+    }
+    type="brief"
+  />
+  <Post
+    key="2"
+    onDelete={[Function]}
+    post={
+      Object {
+        "author": "Admin User",
+        "content": Object {
+          "brief": "test",
+          "extended": "test",
+        },
+        "id": "2",
+        "slug": "test-title-2",
+        "title": "Test Title 2",
+      }
+    }
+    type="brief"
+  />
+</div>
+`;

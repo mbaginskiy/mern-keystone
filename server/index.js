@@ -1,4 +1,5 @@
 import './envConfigInit';
+// eslint-disable-next-line import/first
 import keystone from 'keystone';
 import './keystoneInit';
 import './models';

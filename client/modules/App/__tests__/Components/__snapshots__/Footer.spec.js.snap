@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders the footer properly 1`] = `
+<Footer__Component>
+  <Footer__Text>
+    © 2016 · Hashnode · LinearBytes Inc.
+  </Footer__Text>
+  <Footer__Text>
+    <FormattedMessage
+      id="twitterMessage"
+      values={Object {}}
+    />
+    :
+    <a
+      href="https://twitter.com/@mern_io"
+      rel="noopener noreferrer"
+      target="_Blank"
+    >
+      @mern_io
+    </a>
+  </Footer__Text>
+</Footer__Component>
+`;

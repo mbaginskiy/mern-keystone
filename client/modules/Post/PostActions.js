@@ -14,15 +14,13 @@ export function addPost(post) {
 }
 
 export function addPostRequest(post) {
-  return (dispatch) => {
-    return callApi('posts', 'post', {
-      post: {
-        name: post.name,
-        title: post.title,
-        content: post.content,
-      },
-    }).then(res => dispatch(addPost(res.post)));
-  };
+  return dispatch => callApi('posts', 'post', {
+    post: {
+      name: post.name,
+      title: post.title,
+      content: post.content,
+    },
+  }).then(res => dispatch(addPost(res.post)));
 }
 
 export function addPosts(posts) {
@@ -33,28 +31,22 @@ export function addPosts(posts) {
 }
 
 export function fetchPosts() {
-  return (dispatch) => {
-    return callApi('posts').then(res => {
-      dispatch(addPosts(res.posts));
-    });
-  };
+  return dispatch => callApi('posts').then((res) => {
+    dispatch(addPosts(res.posts));
+  });
 }
 
 export function fetchPost(slug) {
-  return (dispatch) => {
-    return callApi(`posts/${slug}`).then(res => dispatch(addPost(res.post)));
-  };
+  return dispatch => callApi(`posts/${slug}`).then(res => dispatch(addPost(res.post)));
 }
 
-export function deletePost(cuid) {
+export function deletePost(id) {
   return {
     type: DELETE_POST,
-    cuid,
+    id,
   };
 }
 
-export function deletePostRequest(cuid) {
-  return (dispatch) => {
-    return callApi(`posts/${cuid}`, 'delete').then(() => dispatch(deletePost(cuid)));
-  };
+export function deletePostRequest(id) {
+  return dispatch => callApi(`posts/${id}`, 'delete').then(() => dispatch(deletePost(id)));
 }

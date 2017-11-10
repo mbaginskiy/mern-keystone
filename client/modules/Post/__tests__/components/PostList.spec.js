@@ -1,17 +1,39 @@
 import React from 'react';
-import test from 'ava';
 import { shallow } from 'enzyme';
+import 'jest-styled-components';
 import PostList from '../../components/PostList';
 
 const posts = [
-  { name: 'Prashant', title: 'Hello Mern', slug: 'hello-mern', cuid: 'f34gb2bh24b24b2', content: "All cats meow 'mern!'" },
-  { name: 'Mayank', title: 'Hi Mern', slug: 'hi-mern', cuid: 'f34gb2bh24b24b3', content: "All dogs bark 'mern!'" },
+  {
+    author: 'Admin User',
+    title: 'Test Title 1',
+    slug: 'test-title-1',
+    content: {
+      brief: 'test',
+      extended: 'test',
+    },
+    id: '1',
+  },
+  {
+    author: 'Admin User',
+    title: 'Test Title 2',
+    slug: 'test-title-2',
+    content: {
+      brief: 'test',
+      extended: 'test',
+    },
+    id: '2',
+  },
 ];
 
-test('renders the list', t => {
+test('renders the list', () => {
   const wrapper = shallow(
-    <PostList posts={posts} handleShowPost={() => {}} handleDeletePost={() => {}} />
+    <PostList
+      posts={posts}
+      handleShowPost={() => {}}
+      handleDeletePost={() => {}}
+    />,
   );
-
-  t.is(wrapper.find('PostListItem').length, 2);
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Post').length).toBe(2);
 });

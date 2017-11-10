@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches snapshot 1`] = `
+<Post__Component>
+  <Post__Title>
+    <Link
+      replace={false}
+      to="/posts/test-title-1"
+    >
+      Test Title 1
+    </Link>
+  </Post__Title>
+  <Post__AuthorName>
+    <FormattedMessage
+      id="by"
+      values={Object {}}
+    />
+     
+    Admin User
+  </Post__AuthorName>
+  <Post__Content>
+    test-brief
+  </Post__Content>
+  <Post__Actions>
+    <a
+      href="#delete"
+      onClick={[Function]}
+    >
+      <FormattedMessage
+        id="deletePost"
+        values={Object {}}
+      />
+    </a>
+  </Post__Actions>
+</Post__Component>
+`;

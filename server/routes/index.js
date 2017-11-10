@@ -19,31 +19,25 @@
  */
 
 import keystone from 'keystone';
-import middleware from './middleware';
-
 import compression from 'compression';
 import bodyParser from 'body-parser';
-import path from 'path';
-import IntlWrapper from '../../client/modules/Intl/IntlWrapper';
-
-// Webpack Requirements
 import webpack from 'webpack';
-import config from '../../webpack.config.dev';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
-
-// React And Redux Setup
-import { configureStore } from '../../client/store';
-import { Provider } from 'react-redux';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { match, RouterContext } from 'react-router';
+import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
+import { matchPath } from 'react-router-dom';
+import { StaticRouter } from 'react-router';
 import Helmet from 'react-helmet';
 
+import middleware from './middleware';
+import config from '../../webpack.config.dev';
 // Import required modules../
+import configureStore from '../../client/store';
+import App from '../../client/App';
 import routes from '../../client/routes';
-import fetchComponentData from '../util/fetchComponentData';
-import serverConfig from '../config';
+import promiseSequence from '../util/promiseSequence';
 
 // Import API Route Controllers
 import * as posts from './api/posts';
@@ -54,12 +48,13 @@ const api = {
 };
 
 // Render Initial HTML
-const renderFullPage = (html, initialState) => {
+const renderFullPage = (initialView, initialStyles, initialState) => {
   const head = Helmet.rewind();
+  const { webpackAssets, webpackChunkAssets } = process.env;
 
   // Import Manifests
-  const assetsManifest = process.env.webpackAssets && JSON.parse(process.env.webpackAssets);
-  const chunkManifest = process.env.webpackChunkAssets && JSON.parse(process.env.webpackChunkAssets);
+  const assetsManifest = webpackAssets && JSON.parse(webpackAssets);
+  const chunkManifest = webpackChunkAssets && JSON.parse(webpackChunkAssets);
 
   return `
     <!doctype html>
@@ -71,16 +66,16 @@ const renderFullPage = (html, initialState) => {
         ${head.link.toString()}
         ${head.script.toString()}
 
-        ${process.env.NODE_ENV === 'production' ? `<link rel='stylesheet' href='${assetsManifest['/app.css']}' />` : ''}
         <link href='https://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'/>
         <link rel="shortcut icon" href="http://res.cloudinary.com/hashnode/image/upload/v1455629445/static_imgs/mern/mern-favicon-circle-fill.png" type="image/png" />
+        ${initialStyles}
       </head>
       <body>
-        <div id="root">${process.env.NODE_ENV === 'production' ? html : `<div>${html}</div>`}</div>
+        <div id="root">${process.env.NODE_ENV === 'production' ? initialView : `<div>${initialView}</div>`}</div>
         <script>
           window.__INITIAL_STATE__ = ${JSON.stringify(initialState)};
           ${process.env.NODE_ENV === 'production' ?
-          `//<![CDATA[
+    `//<![CDATA[
           window.webpackManifest = ${JSON.stringify(chunkManifest)};
           //]]>` : ''}
         </script>
@@ -91,20 +86,12 @@ const renderFullPage = (html, initialState) => {
   `;
 };
 
-const renderError = err => {
-  const softTab = '&#32;&#32;&#32;&#32;';
-  const errTrace = process.env.NODE_ENV !== 'production' ?
-    `:<br><br><pre style="color:red">${softTab}${err.stack.replace(/\n/g, `<br>${softTab}`)}</pre>` : '';
-  return renderFullPage(`Server Error${errTrace}`, {});
-};
-
 // Common Middleware
 keystone.pre('routes', middleware.initLocals);
 keystone.pre('render', middleware.flashMessages);
 
 // Setup Route Bindings
-exports = module.exports = function (app) {
-
+module.exports = (app) => {
   // Run Webpack dev server in development mode
   if (process.env.NODE_ENV === 'development') {
     const compiler = webpack(config);
@@ -119,49 +106,48 @@ exports = module.exports = function (app) {
 
   // Server Side Rendering based on routes matched by React-router.
   app.use((req, res, next) => {
-    match({ routes, location: req.url }, (err, redirectLocation, renderProps) => {
-      if (err) {
-        return res.status(500).end(renderError(err));
+    const promises = [];
+    const store = configureStore();
+    const context = {};
+    const sheet = new ServerStyleSheet();
+    routes.some((route) => {
+      const match = matchPath(req.url, route);
+      if (match) {
+        promises.push(route.loadData(match));
       }
+      return match;
+    });
 
-      if (redirectLocation) {
-        return res.redirect(302, redirectLocation.pathname + redirectLocation.search);
-      }
-
-      if (!renderProps) {
-        return next();
-      }
-
-      const store = configureStore();
-
-      return fetchComponentData(store, renderProps.components, renderProps.params)
+    if (promises.length) {
+      return promiseSequence(promises, promise => store.dispatch(promise)
         .then(() => {
           const initialView = renderToString(
-            <Provider store={store}>
-              <IntlWrapper>
-                <RouterContext {...renderProps} />
-              </IntlWrapper>
-            </Provider>
+            <StaticRouter
+              location={req.url}
+              context={context}
+            >
+              <StyleSheetManager sheet={sheet.instance}>
+                <App store={store} />
+              </StyleSheetManager>
+            </StaticRouter>,
           );
-          const finalState = store.getState();
-
+          const initialStyles = sheet.getStyleTags();
           res
             .set('Content-Type', 'text/html')
             .status(200)
-            .end(renderFullPage(initialView, finalState));
-        })
-        .catch((error) => next(error));
-    });
+            .end(renderFullPage(initialView, initialStyles, store.getState()));
+        }));
+    }
+    return next();
   });
 
   // API Routes
   app.get('/api/posts/', keystone.middleware.api, api.posts.getPosts);
   app.get('/api/posts/:slug', keystone.middleware.api, api.posts.getPost);
-  app.post('/api/posts/', keystone.middleware.api, api.posts.createPost);  
+  app.post('/api/posts/', keystone.middleware.api, api.posts.createPost);
   app.put('/api/posts/:slug', keystone.middleware.api, api.posts.updatePost);
   app.delete('/api/posts/:slug', keystone.middleware.api, api.posts.deletePost);
 
-	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
-	// app.get('/protected', middleware.requireUser, routes.views.protected);
-
+  // note: To protect a route so that only admins can see it, use the requireUser middleware:
+  // app.get('/protected', middleware.requireUser, routes.views.protected);
 };

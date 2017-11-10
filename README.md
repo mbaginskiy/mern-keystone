@@ -11,3 +11,7 @@
 5. `npm run cover` - generates test coverage report
 
 6. `npm run lint` - runs linter to check for lint errors
+
+## TODO
+
+Router Code Splitting

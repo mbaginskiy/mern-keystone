@@ -13,7 +13,7 @@ import { mount, shallow } from 'enzyme';
 const messages = require('../../Intl/localizationData/en');
 
 // Create the IntlProvider to retrieve context for wrapping around.
-const intlProvider = new IntlProvider({ locale: 'en', messages }, {});
+const intlProvider = new IntlProvider({ locale: 'en', messages: messages.default.messages }, {});
 export const { intl } = intlProvider.getChildContext();
 
 /**
@@ -21,7 +21,12 @@ export const { intl } = intlProvider.getChildContext();
  */
 const nodeWithIntlProp = node => React.cloneElement(node, { intl });
 
-export const shallowWithIntl = node => shallow(nodeWithIntlProp(node), { context: { intl } });
+export const shallowWithIntl = (node, context) => shallow(
+  nodeWithIntlProp(node),
+  {
+    context: Object.assign({}, context, { intl }),
+  },
+);
 
 export const mountWithIntl = node => mount(nodeWithIntlProp(node), {
   context: { intl },

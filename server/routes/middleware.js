@@ -7,7 +7,6 @@
  * you have more middleware you may want to group it as separate
  * modules in your project's /lib directory.
  */
-import some from 'lodash.some';
 
 /**
   Initialises the standard view locals
@@ -38,7 +37,7 @@ exports.flashMessages = (req, res, next) => {
     warning: req.flash('warning'),
     error: req.flash('error'),
   };
-  res.locals.messages = some(flashMessages, msgs => msgs.length) ? flashMessages : false;
+  res.locals.messages = flashMessages.some(msgs => msgs.length) ? flashMessages : false;
   next();
 };
 

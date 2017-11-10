@@ -16,8 +16,10 @@ export function getPosts(req, res) {
       const posts = items.map((item) => {
         const { first, last } = item.author.name;
         const author = [first, last].filter(val => val).join(' ');
-
-        return Object.assign(item, { author });
+        /* eslint-disable no-underscore-dangle */
+        const id = item._id;
+        /* eslint-enable no-underscore-dangle */
+        return Object.assign(item, { author, id });
       });
 
       res.apiResponse({
@@ -42,7 +44,10 @@ export function getPost(req, res) {
 
       const { first, last } = item.author.name;
       const author = [first, last].filter(val => val).join(' ');
-      const post = Object.assign(item, { author });
+      /* eslint-disable no-underscore-dangle */
+      const id = item._id;
+      /* eslint-enable no-underscore-dangle */
+      const post = Object.assign(item, { author, id });
 
       res.apiResponse({
         post,
